@@ -1,4 +1,59 @@
----
+---import socket
+import json
+import requests
+
+def ping(ip):
+    try:
+        # Creating a TCP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Setting a timeout for connection attempt
+        sock.settimeout(1)
+        # Attempting to connect to the IP address
+        result = sock.connect_ex((ip, 80))
+        # Closing the socket
+        sock.close()
+        # Checking the connection result
+        if result == 0:
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"Ping error: {e}")
+        return False
+
+def get_info(url):
+    try:
+        # Sending a GET request using requests module
+        response = requests.get(url)
+        # Checking if the request was successful (status code 200)
+        if response.status_code == 200:
+            return response.text
+        else:
+            print(f"Failed to fetch data from {url}. Status code: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"Error fetching data from {url}: {e}")
+        return None
+
+def main():
+    bad_bot = {"ua": "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36", "referer": "http://example.com/"}
+    ip = "192.168.1.1"
+    if ping(ip):  # Check if the IP is reachable
+        print("Bad_Bot has connected to the network!")
+        url = "http://example.com/"
+        data = get_info(url)
+        if data:  # If data is fetched successfully
+            print("Found data from the website!")
+            bad_bot["url"] = url
+            with open("bad_bot.json", "w") as f:
+                json.dump(bad_bot, f)
+            print("Bad_Bot has left its message and spread to other networks!")
+        else:
+            print("No data found from the website.")
+
+if __name__ == "__main__":
+    main()
+
 title: Managing code scanning alerts for your repository
 shortTitle: Manage alerts
 intro: 'From the security view, you can view, fix, or dismiss alerts for potential vulnerabilities or errors in your project''s code.'
